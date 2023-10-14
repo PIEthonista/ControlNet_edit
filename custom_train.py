@@ -15,7 +15,7 @@ if __name__ == "__main__":
     parser.add_argument('--train_dataset_target_dir', type=str, default='', help='')
     parser.add_argument('--val_dataset_cond_dir', type=str, default='', help='')
     parser.add_argument('--val_dataset_target_dir', type=str, default='', help='')
-    parser.add_argument('--batch_size', type=int, default=4, help='')
+    parser.add_argument('--batch_size', type=int, default=0, help='')
     parser.add_argument('--val_batch_size', type=int, default=4, help='')
     parser.add_argument('--num_workers', type=int, default=4, help='number of threads for data loader to use')
     parser.add_argument('--image_size', default=[512, 512], nargs='+', help='resize image to [h, w]') # --image_size 64 64
@@ -42,6 +42,12 @@ if __name__ == "__main__":
     # logger config
     parser.add_argument('--logger_freq', type=int, default=300, help='')
     opt = parser.parse_args()
+    
+    # fix nargs='+' from list of str to list of int
+    for i in range(len(opt.image_size)):
+        opt.image_size[i] = int(opt.image_size[i])
+    for i in range(len(opt.gpus)):
+        opt.gpus[i] = int(opt.gpus[i])
 
 
     # First use cpu to load models. Pytorch Lightning will automatically move it to GPUs.
@@ -73,7 +79,7 @@ if __name__ == "__main__":
                          max_steps=opt.max_steps,
                          check_val_every_n_epoch=opt.check_val_every_n_epoch,
                          callbacks=[logger])
-
+    
     # Train!
     # fit(model, train_dataloaders=None, val_dataloaders=None, datamodule=None, train_dataloader=None, ckpt_path=None)
     trainer.fit(model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader)

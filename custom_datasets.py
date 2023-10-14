@@ -9,13 +9,13 @@ class SameTextPromptDataset(Dataset):
     def __init__(self, image_dir_cond, image_dir_target, image_size=[512, 512], input_text_prompt=""):
         self.cond_path = image_dir_cond
         self.target_path = image_dir_target
-        self.image_filenames = sorted([x for x in os.listdir(self.a_path)])
+        self.image_filenames = sorted([x for x in os.listdir(self.cond_path)])
         self.image_size = image_size
         self.input_text_prompt = input_text_prompt
 
         self.transform = transforms.Compose([
                 transforms.ToTensor(),
-                transforms.Resize((image_size[0], image_size[1])),
+                transforms.Resize((int(image_size[0]), int(image_size[1]))),
         ])
 
     def __len__(self):
@@ -29,11 +29,10 @@ class SameTextPromptDataset(Dataset):
         cond_img = cv2.cvtColor(cond_img, cv2.COLOR_BGR2RGB)
         target_img = cv2.cvtColor(target_img, cv2.COLOR_BGR2RGB)
         
-        # Resize to fit into GPU
         cond_img = self.transform(cond_img)
         target_img = self.transform(target_img)
 
-        # original code needs (128, 128, 3)
+        # original code needs (h, w, 3)
         cond_img = np.transpose(cond_img.numpy(), (1,2,0))
         target_img = np.transpose(target_img.numpy(), (1,2,0))
 

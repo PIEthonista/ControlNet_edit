@@ -10,3 +10,5 @@ hint = item['hint']
 print(txt)
 print(jpg.shape)
 print(hint.shape)
+
+

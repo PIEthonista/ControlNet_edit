@@ -33,4 +33,3 @@ dependencies:
       - prettytable==3.6.0
       - safetensors==0.2.7
       - basicsr==1.4.2
-      - wandb==0.15.11
