@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from custom_datasets import LLVIPSameTextPromptDataset
 from cldm.logger import ImageLogger
 from cldm.model import create_model, load_state_dict
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 
 if __name__ == "__main__":
@@ -40,7 +41,11 @@ if __name__ == "__main__":
     parser.add_argument('--max_steps', type=int, default=-1, help='Stop training after this number of steps. Disabled by default (-1)')
     
     # logger config
-    parser.add_argument('--logger_freq', type=int, default=300, help='')
+    parser.add_argument('--img_logger_freq', type=int, default=300, help='')
+    parser.add_argument('--save_ckpt_every_n_epoch', type=int, default=1, help='saves a model ckpt every n epochs')
+    parser.add_argument('--save_ckpt_dir', type=str, default='', help='saves a model ckpt every n epochs to this dir')
+    parser.add_argument('--save_ckpt_filename', type=str, default='', help='saves a model ckpt every n epochs with this name + "-epoch-step"')
+    
     opt = parser.parse_args()
     
     # fix nargs='+' from list of str to list of int
@@ -69,7 +74,11 @@ if __name__ == "__main__":
     train_dataloader = DataLoader(train_dataset, num_workers=opt.num_workers, batch_size=opt.batch_size, shuffle=True)
     val_dataloader = DataLoader(val_dataset, num_workers=opt.num_workers, batch_size=opt.val_batch_size, shuffle=False)
     
-    logger = ImageLogger(batch_frequency=opt.logger_freq)
+    img_logger = ImageLogger(batch_frequency=opt.img_logger_freq)
+    ckpt_saver = ModelCheckpoint(dirpath=opt.save_ckpt_dir,
+                                 filename=opt.save_ckpt_filename + '-{epoch}-{step}',
+                                 every_n_epochs=opt.save_ckpt_every_n_epoch)
+    
     trainer = pl.Trainer(accumulate_grad_batches=opt.accumulate_grad_batches, 
                          benchmark=opt.cudnn_benchmark,
                          detect_anomaly=opt.detect_anomaly,
@@ -78,7 +87,7 @@ if __name__ == "__main__":
                          max_epochs=opt.max_epochs,
                          max_steps=opt.max_steps,
                          check_val_every_n_epoch=opt.check_val_every_n_epoch,
-                         callbacks=[logger])
+                         callbacks=[img_logger, ckpt_saver])
     
     # Train!
     # fit(model, train_dataloaders=None, val_dataloaders=None, datamodule=None, train_dataloader=None, ckpt_path=None)
