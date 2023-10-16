@@ -3,7 +3,7 @@ from share import *
 import argparse
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
-from custom_datasets import SameTextPromptDataset
+from custom_datasets import LLVIPSameTextPromptDataset
 from cldm.logger import ImageLogger
 from cldm.model import create_model, load_state_dict
 
@@ -58,14 +58,14 @@ if __name__ == "__main__":
     model.only_mid_control = opt.only_mid_control
 
 
-    train_dataset = SameTextPromptDataset(image_dir_cond=opt.train_dataset_cond_dir,
-                                          image_dir_target=opt.train_dataset_target_dir,
-                                          image_size=opt.image_size,
-                                          input_text_prompt=opt.input_text_prompt)
-    val_dataset = SameTextPromptDataset(image_dir_cond=opt.val_dataset_cond_dir,
-                                        image_dir_target=opt.val_dataset_target_dir,
-                                        image_size=opt.image_size,
-                                        input_text_prompt=opt.input_text_prompt)
+    train_dataset = LLVIPSameTextPromptDataset(image_dir_cond=opt.train_dataset_cond_dir,
+                                               image_dir_target=opt.train_dataset_target_dir,
+                                               image_size=opt.image_size,
+                                               input_text_prompt=opt.input_text_prompt)
+    val_dataset = LLVIPSameTextPromptDataset(image_dir_cond=opt.val_dataset_cond_dir,
+                                             image_dir_target=opt.val_dataset_target_dir,
+                                             image_size=opt.image_size,
+                                             input_text_prompt=opt.input_text_prompt)
     train_dataloader = DataLoader(train_dataset, num_workers=opt.num_workers, batch_size=opt.batch_size, shuffle=True)
     val_dataloader = DataLoader(val_dataset, num_workers=opt.num_workers, batch_size=opt.val_batch_size, shuffle=False)
     

@@ -1,47 +1,61 @@
 import numpy as np
+from PIL import Image
 from tutorial_dataset import MyDataset
 
-dataset = MyDataset()
-print(len(dataset))
+# dataset = MyDataset()
+# print(len(dataset))
 
-item = dataset[1234]
-jpg = item['jpg']
-txt = item['txt']
-hint = item['hint']
-print(txt)
-print(jpg.shape)
-print(hint.shape)
-print(jpg.__class__)
-print(hint.__class__)
-print(jpg.dtype)
-print(hint.dtype)
-print(np.mean(jpg), np.min(jpg), np.max(jpg))
-print(np.mean(hint), np.min(hint), np.max(hint))
+# item = dataset[1234]
+# target_img = item['target_img']
+# txt = item['txt']
+# cond_img = item['cond_img']
+# print(txt)
+# print(target_img.shape)
+# print(cond_img.shape)
+# print(target_img.__class__)
+# print(cond_img.__class__)
+# print(target_img.dtype)
+# print(cond_img.dtype)
+# print(np.mean(target_img), np.min(target_img), np.max(target_img))
+# print(np.mean(cond_img), np.min(cond_img), np.max(cond_img))
 
-from custom_datasets import SameTextPromptDataset
+from custom_datasets import LLVIPSameTextPromptDataset
 
-dataset = SameTextPromptDataset(image_dir_cond='/work/u5832291/datasets/LLVIP/infrared/train', 
-                                image_dir_target='/work/u5832291/datasets/LLVIP/visible/train', 
+dataset = LLVIPSameTextPromptDataset(image_dir_cond='/Users/gohyixian/Desktop/LLVIP/infrared/test', 
+                                image_dir_target='/Users/gohyixian/Desktop/LLVIP/visible/test', 
                                 image_size=[512, 512], 
                                 input_text_prompt="")
 print("----------")
 print(len(dataset))
 
-item = dataset[1234]
-jpg = item['jpg']
+item = dataset[100]
+target_img = item['jpg']
+cond_img = item['hint']
 txt = item['txt']
-hint = item['hint']
+
 print(txt)
-print(jpg.shape)
-print(hint.shape)
-print(jpg.__class__)
-print(hint.__class__)
-print(jpg.dtype)
-print(hint.dtype)
-print(np.sum(np.isnan(jpg).astype(int)))
-print(np.sum(np.isnan(hint).astype(int)))
-print(np.mean(jpg), np.min(jpg), np.max(jpg))
-print(np.mean(hint), np.min(hint), np.max(hint))
+print(target_img.shape)
+print(cond_img.shape)
+print(target_img.__class__)
+print(cond_img.__class__)
+print(target_img.dtype)
+print(cond_img.dtype)
+print(np.sum(np.isnan(target_img).astype(int)))
+print(np.sum(np.isnan(cond_img).astype(int)))
+print(np.mean(target_img), np.min(target_img), np.max(target_img))
+print(np.mean(cond_img), np.min(cond_img), np.max(cond_img))
+
+target_img = (target_img + 1.0) * 127.5
+target_img = target_img.astype(np.uint8)
+
+cond_img = cond_img * 255.0
+cond_img = cond_img.astype(np.uint8)
+
+target_img = Image.fromarray(target_img)
+cond_img = Image.fromarray(cond_img)
+
+target_img.save('/Users/gohyixian/Desktop/LLVIP/target_img.png')
+cond_img.save('/Users/gohyixian/Desktop/LLVIP/cond_img.png')
 
 
 # 50000

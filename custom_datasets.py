@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 
 
-class SameTextPromptDataset(Dataset):
+class LLVIPSameTextPromptDataset(Dataset):
     def __init__(self, image_dir_cond, image_dir_target, image_size=[512, 512], input_text_prompt=""):
         self.cond_path = image_dir_cond
         self.target_path = image_dir_target
@@ -36,10 +36,13 @@ class SameTextPromptDataset(Dataset):
         cond_img = np.transpose(cond_img.numpy(), (1,2,0))
         target_img = np.transpose(target_img.numpy(), (1,2,0))
 
-        # Normalize cond_img images to [0, 1].
-        cond_img = cond_img.astype(np.float32) / 255.0
-
-        # Normalize target images to [-1, 1].
-        target_img = (target_img.astype(np.float32) / 127.5) - 1.0
+        # Normalize cond_img images to [0, 1]. (Already is 0-1)
+        # cond_img = cond_img.astype(np.float32) / 255.0
+        cond_img = cond_img.astype(np.float32)
+        
+        # Normalize target images to [-1, 1]. (Already is 0-1)
+        # target_img = (target_img.astype(np.float32) / 127.5) - 1.0
+        target_img = (target_img.astype(np.float32) * 2.0) - 1.0
+        
 
         return dict(jpg=target_img, txt=self.input_text_prompt, hint=cond_img)
