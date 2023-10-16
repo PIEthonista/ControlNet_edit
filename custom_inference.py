@@ -77,7 +77,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='controlnet_edited_inferencing')
     parser.add_argument('--input_image_dir', type=str, default='', help='directory of input images (condition)')
     parser.add_argument('--output_image_dir', type=str, default='', help='directory for output images')
-    parser.add_argument('--image_size', type=int, default=512, help='resize image to [n, n]. Min=256 Max=768 step=64')
+    parser.add_argument('--image_size', type=int, default=256, help='resize image to [n, n]. Min=256 Max=768 step=64')
     parser.add_argument('--input_text_prompt', type=str, default='', help='fixed input text prompt for sd model')
     parser.add_argument('--model_ckpt', type=str, default='', help='path to trained model checkpoint')
     parser.add_argument('--cldm_model_config', type=str, default='./models/cldm_v15.yaml', help='config file for the cldm v15 / v21 model')
@@ -105,6 +105,10 @@ if __name__ == '__main__':
     all_files = os.listdir(opt.input_image_dir)
     all_images = sorted([f for f in tqdm(all_files, total=len(all_files)) if is_image_file(f)])
     print(f"Total: {len(all_images)} images")
+    
+    if not os.path.exists(opt.output_image_dir):
+        os.makedirs(opt.output_image_dir)
+        print(f"Created output dir: {opt.output_image_dir}")
     
     print("==> Starting Inferencing")
     for f in tqdm(all_images, total=len(all_images)):
