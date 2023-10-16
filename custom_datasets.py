@@ -14,7 +14,7 @@ class LLVIPSameTextPromptDataset(Dataset):
         self.input_text_prompt = input_text_prompt
 
         self.transform = transforms.Compose([
-                transforms.ToTensor(),
+                transforms.ToTensor(),  # converts from 0-255 to 0-1
                 transforms.Resize((int(image_size[0]), int(image_size[1]))),
         ])
 
@@ -24,7 +24,7 @@ class LLVIPSameTextPromptDataset(Dataset):
     def __getitem__(self, idx):
         cond_img = cv2.imread(os.path.join(self.cond_path, self.image_filenames[idx]))
         target_img = cv2.imread(os.path.join(self.target_path, self.image_filenames[idx]))
-
+        
         # Do not forget that OpenCV read images in BGR order.
         cond_img = cv2.cvtColor(cond_img, cv2.COLOR_BGR2RGB)
         target_img = cv2.cvtColor(target_img, cv2.COLOR_BGR2RGB)
