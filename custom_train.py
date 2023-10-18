@@ -7,6 +7,7 @@ from custom_datasets import LLVIPSameTextPromptDataset
 from cldm.logger import ImageLogger
 from cldm.model import create_model, load_state_dict
 from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.loggers import WandbLogger
 
 
 if __name__ == "__main__":
@@ -46,6 +47,9 @@ if __name__ == "__main__":
     parser.add_argument('--save_ckpt_dir', type=str, default='', help='saves a model ckpt every n epochs to this dir')
     parser.add_argument('--save_ckpt_filename', type=str, default='', help='saves a model ckpt every n epochs with this name + "-epoch-step"')
     
+    # wandb logger
+    parser.add_argument('--wandb_project', type=str, default='ControlNet-edit', help='')
+    parser.add_argument('--wandb_run_name', type=str, default='test', help='')
     opt = parser.parse_args()
     
     # fix nargs='+' from list of str to list of int
@@ -77,7 +81,10 @@ if __name__ == "__main__":
     img_logger = ImageLogger(batch_frequency=opt.img_logger_freq)
     ckpt_saver = ModelCheckpoint(dirpath=opt.save_ckpt_dir,
                                  filename=opt.save_ckpt_filename + '-{epoch}-{step}',
-                                 every_n_epochs=opt.save_ckpt_every_n_epoch)
+                                 every_n_epochs=opt.save_ckpt_every_n_epoch,
+                                 verbose=True,
+                                 save_last=True)
+    wandb_logger = WandbLogger(project=opt.wandb_project, name=opt.wandb_run_name)
     
     trainer = pl.Trainer(accumulate_grad_batches=opt.accumulate_grad_batches, 
                          benchmark=opt.cudnn_benchmark,
@@ -87,7 +94,8 @@ if __name__ == "__main__":
                          max_epochs=opt.max_epochs,
                          max_steps=opt.max_steps,
                          check_val_every_n_epoch=opt.check_val_every_n_epoch,
-                         callbacks=[img_logger, ckpt_saver])
+                         callbacks=[img_logger, ckpt_saver, wandb_logger],
+                         enable_checkpointing=True)
     
     # Train!
     # fit(model, train_dataloaders=None, val_dataloaders=None, datamodule=None, train_dataloader=None, ckpt_path=None)
