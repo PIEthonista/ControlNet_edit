@@ -16,6 +16,7 @@ from pytorch_lightning import seed_everything
 from annotator.util import resize_image, HWC3
 from cldm.model import create_model, load_state_dict
 from cldm.ddim_hacked import DDIMSampler
+import torchvision.transforms as transforms
 
 def is_image_file(filename):
     return any(filename.endswith(extension) for extension in [".png", ".jpg", ".jpeg"])
@@ -32,15 +33,16 @@ def save_img(image_tensor, filename):
     print("Image saved as {}".format(filename))
 
 
-def process(model, ddim_sampler, input_image, prompt, a_prompt, n_prompt, num_samples, image_resolution, ddim_steps, guess_mode, strength, scale, seed, eta):
+def process(model, ddim_sampler, input_image, prompt, a_prompt, n_prompt, num_samples, ddim_steps, guess_mode, strength, scale, seed, eta):
     with torch.no_grad():
-        img = resize_image(HWC3(input_image), image_resolution)
-        H, W, C = img.shape
-
-        control = torch.from_numpy(img.copy()).float().cuda() / 255.0 # 0.-1.
+        # img = resize_image(HWC3(input_image), image_resolution)
+        H, W, C = input_image.shape
+        
+        # control = torch.from_numpy(img.copy()).float().cuda() / 255.0 # 0.-1.
+        control = input_image.copy().float().cuda()
         control = torch.stack([control for _ in range(num_samples)], dim=0) # batch
         control = einops.rearrange(control, 'b h w c -> b c h w').clone()
-
+        
         if seed == -1:
             seed = random.randint(0, 65535)
         seed_everything(seed)
@@ -111,9 +113,14 @@ if __name__ == '__main__':
         print(f"Created output dir: {opt.output_image_dir}")
     
     print("==> Starting Inferencing")
+    transform = transforms.Compose([
+            transforms.ToTensor(),  # converts from 0-255 to 0-1
+            transforms.Resize((opt.image_size, opt.image_size)),
+    ])
     for f in tqdm(all_images, total=len(all_images)):
         image_path_name = os.path.join(opt.input_image_dir, f)
         input_image = np.array(load_img(image_path_name)) # HxWx3, 0-255, np.uint8
+        input_image = transform(input_image)
         output_img_list = process(model=model, 
                                   ddim_sampler=ddim_sampler, 
                                   input_image=input_image, 
@@ -121,7 +128,6 @@ if __name__ == '__main__':
                                   a_prompt=a_prompt, 
                                   n_prompt=n_prompt, 
                                   num_samples=num_samples, 
-                                  image_resolution=opt.image_size, 
                                   ddim_steps=opt.ddim_steps, 
                                   guess_mode=guess_mode, 
                                   strength=opt.control_strength, 
