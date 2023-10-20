@@ -145,6 +145,9 @@ class DDPM(pl.LightningModule):
         alphas = 1. - betas
         alphas_cumprod = np.cumprod(alphas, axis=0)
         alphas_cumprod_prev = np.append(1., alphas_cumprod[:-1])
+        print("DEBUGGING: betas", betas.shape)
+        print("DEBUGGING: alphas_cumprod", alphas_cumprod.shape)
+        
 
         timesteps, = betas.shape
         self.num_timesteps = int(timesteps)

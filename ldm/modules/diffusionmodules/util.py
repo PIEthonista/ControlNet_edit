@@ -62,7 +62,19 @@ def make_ddim_timesteps(ddim_discr_method, num_ddim_timesteps, num_ddpm_timestep
 
 def make_ddim_sampling_parameters(alphacums, ddim_timesteps, eta, verbose=True):
     # select alphas for computing the variance schedule
+    
+    # ========
+    print("DEBUGGING: alphacums", alphacums.shape)
+    print("DEBUGGING: ddim_timesteps", ddim_timesteps.shape)
+    print("!! running with edited alphacums, Line 68, /work/u5832291/yixian/ControlNet_edit/ldm/modules/diffusionmodules/util.py")
+    mask_ddim_timesteps = np.where(ddim_timesteps >= alphacums.shape[0])
+    # this should only change the last timestep from 1000 to 999 to prevent index out of bounds
+    ddim_timesteps[mask_ddim_timesteps] = alphacums.shape[0] - 1
+    print("DEBUGGING: ddim_timesteps", ddim_timesteps)
+    
     alphas = alphacums[ddim_timesteps]
+    # ========
+        
     alphas_prev = np.asarray([alphacums[0]] + alphacums[ddim_timesteps[:-1]].tolist())
 
     # according the the formula provided in https://arxiv.org/abs/2010.02502

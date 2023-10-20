@@ -94,7 +94,8 @@ if __name__ == "__main__":
                          max_epochs=opt.max_epochs,
                          max_steps=opt.max_steps,
                          check_val_every_n_epoch=opt.check_val_every_n_epoch,
-                         callbacks=[img_logger, ckpt_saver, wandb_logger],
+                        #  callbacks=[img_logger, ckpt_saver, wandb_logger],
+                         callbacks=[img_logger, ckpt_saver],
                          enable_checkpointing=True)
     
     # Train!

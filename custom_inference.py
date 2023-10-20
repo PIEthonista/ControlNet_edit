@@ -36,12 +36,12 @@ def save_img(image_tensor, filename):
 def process(model, ddim_sampler, input_image, prompt, a_prompt, n_prompt, num_samples, ddim_steps, guess_mode, strength, scale, seed, eta):
     with torch.no_grad():
         # img = resize_image(HWC3(input_image), image_resolution)
-        H, W, C = input_image.shape
+        C, H, W = input_image.shape
         
         # control = torch.from_numpy(img.copy()).float().cuda() / 255.0 # 0.-1.
-        control = input_image.copy().float().cuda()
+        control = input_image.float().cuda()
         control = torch.stack([control for _ in range(num_samples)], dim=0) # batch
-        control = einops.rearrange(control, 'b h w c -> b c h w').clone()
+        # control = einops.rearrange(control, 'b h w c -> b c h w').clone()
         
         if seed == -1:
             seed = random.randint(0, 65535)
