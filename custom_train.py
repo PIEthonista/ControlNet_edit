@@ -7,7 +7,7 @@ from custom_datasets import LLVIPSameTextPromptDataset
 from cldm.logger import ImageLogger
 from cldm.model import create_model, load_state_dict
 from pytorch_lightning.callbacks import ModelCheckpoint
-from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.loggers.wandb import WandbLogger
 
 
 if __name__ == "__main__":
@@ -79,11 +79,15 @@ if __name__ == "__main__":
     val_dataloader = DataLoader(val_dataset, num_workers=opt.num_workers, batch_size=opt.val_batch_size, shuffle=False)
     
     img_logger = ImageLogger(batch_frequency=opt.img_logger_freq)
+    
+    # Prevent overwrite old checkpoints: https://github.com/Lightning-AI/lightning/discussions/11087
     ckpt_saver = ModelCheckpoint(dirpath=opt.save_ckpt_dir,
                                  filename=opt.save_ckpt_filename + '-{epoch}-{step}',
                                  every_n_epochs=opt.save_ckpt_every_n_epoch,
                                  verbose=True,
-                                 save_last=True)
+                                 save_last=True,
+                                 save_top_k=-1)
+    
     wandb_logger = WandbLogger(project=opt.wandb_project, name=opt.wandb_run_name)
     
     trainer = pl.Trainer(accumulate_grad_batches=opt.accumulate_grad_batches, 
@@ -94,7 +98,7 @@ if __name__ == "__main__":
                          max_epochs=opt.max_epochs,
                          max_steps=opt.max_steps,
                          check_val_every_n_epoch=opt.check_val_every_n_epoch,
-                        #  callbacks=[img_logger, ckpt_saver, wandb_logger],
+                         #  callbacks=[img_logger, ckpt_saver, wandb_logger],
                          callbacks=[img_logger, ckpt_saver],
                          enable_checkpointing=True)
     
