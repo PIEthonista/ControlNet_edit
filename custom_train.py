@@ -52,6 +52,8 @@ if __name__ == "__main__":
     parser.add_argument('--wandb_run_name', type=str, default='test', help='')
     opt = parser.parse_args()
     
+    print(f">>> TEXT PROMPT: {opt.input_text_prompt}")
+    
     # fix nargs='+' from list of str to list of int
     for i in range(len(opt.image_size)):
         opt.image_size[i] = int(opt.image_size[i])
