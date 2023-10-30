@@ -8,6 +8,7 @@ experiments/
 train_*.txt
 test_*.txt
 EVAL_*.txt
+eval_*.txt
 
 *.out
 *.pth
