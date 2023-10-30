@@ -5,6 +5,10 @@ lightning_logs/
 image_log/
 experiments/
 
+train_*.txt
+test_*.txt
+EVAL_*.txt
+
 *.out
 *.pth
 *.pt
