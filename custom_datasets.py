@@ -44,5 +44,6 @@ class LLVIPSameTextPromptDataset(Dataset):
         # target_img = (target_img.astype(np.float32) / 127.5) - 1.0
         target_img = (target_img.astype(np.float32) * 2.0) - 1.0
         
+        # print("img_min", np.min(cond_img), np.min(target_img), "     img_max", np.max(cond_img), np.max(target_img))
 
         return dict(jpg=target_img, txt=self.input_text_prompt, hint=cond_img)

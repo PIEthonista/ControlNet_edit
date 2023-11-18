@@ -28,11 +28,13 @@ def convert_to_bnw(input_folder, output_folder):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--input_path', type=str, default='', help='')
-    parser.add_argument('--output_path', type=str, default='', help='')
+    parser.add_argument('--input_dir', type=str, default='', help='')
+    parser.add_argument('--output_dir', type=str, default='', help='')
     args = parser.parse_args()
     
     # input_folder = "/Users/gohyixian/Desktop/LLVIP/visible/test"
     # output_folder = "/Users/gohyixian/Desktop/LLVIP_visible_test_bnw"
-    convert_to_bnw(args.input_path, args.output_path)
+    convert_to_bnw(args.input_dir, args.output_dir)
     print("DONE")
+    
+# python custom_rgb2bnw.py --input_dir /media/nine/HD_1/HD_1_from_seven/data/LLVIP/visible/test --output_dir /media/nine/HD_1/HD_1_from_seven/data/LLVIP/visible_grayscale_3_channels_0_255/test
