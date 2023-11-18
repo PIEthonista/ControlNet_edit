@@ -8,6 +8,7 @@ from custom_datasets import LLVIPSameTextPromptDataset
 from cldm.logger import ImageLogger
 from cldm.model import create_model, load_state_dict
 from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.loggers.wandb import WandbLogger
 
 
@@ -43,6 +44,7 @@ if __name__ == "__main__":
     parser.add_argument('--max_steps', type=int, default=-1, help='Stop training after this number of steps. Disabled by default (-1)')
     
     # logger config
+    # parser.add_argument('--tb_logger_dir', type=str, default='', help='dir for tb logging')
     parser.add_argument('--img_logger_dir', type=str, default='', help='dir for saving image logs')
     parser.add_argument('--img_logger_freq', type=int, default=300, help='log every N steps')
     parser.add_argument('--img_logger_max_img', type=int, default=4, help='max num of images to log every N steps')
@@ -62,6 +64,11 @@ if __name__ == "__main__":
         opt.img_logger_dir = os.path.join(opt.save_ckpt_dir, f"image_log__{opt.save_ckpt_filename}")
         if not os.path.exists(opt.img_logger_dir):
             os.makedirs(opt.img_logger_dir)
+    # if opt.tb_logger_dir == '':
+    #     # update img_log_dir
+    #     opt.tb_logger_dir = os.path.join(opt.save_ckpt_dir, f"tb_log__{opt.save_ckpt_filename}")
+    #     if not os.path.exists(opt.tb_logger_dir):
+    #         os.makedirs(opt.tb_logger_dir)
     
     # fix nargs='+' from list of str to list of int
     for i in range(len(opt.image_size)):
@@ -89,6 +96,8 @@ if __name__ == "__main__":
     train_dataloader = DataLoader(train_dataset, num_workers=opt.num_workers, batch_size=opt.batch_size, shuffle=True)
     val_dataloader = DataLoader(val_dataset, num_workers=opt.num_workers, batch_size=opt.val_batch_size, shuffle=False)
     
+    # tb_logger = TensorBoardLogger(save_dir=opt.tb_logger_dir)
+    
     img_logger = ImageLogger(save_path=opt.img_logger_dir,
                              batch_frequency=opt.img_logger_freq,
                              max_images=opt.img_logger_max_img)
@@ -111,7 +120,7 @@ if __name__ == "__main__":
                          max_epochs=opt.max_epochs,
                          max_steps=opt.max_steps,
                          check_val_every_n_epoch=opt.check_val_every_n_epoch,
-                         #  callbacks=[img_logger, ckpt_saver, wandb_logger],
+                         #  callbacks=[tb_logger, img_logger, ckpt_saver, wandb_logger],
                          callbacks=[img_logger, ckpt_saver],
                          enable_checkpointing=True)
     
