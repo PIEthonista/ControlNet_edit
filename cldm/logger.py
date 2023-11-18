@@ -9,9 +9,12 @@ from pytorch_lightning.utilities.distributed import rank_zero_only
 
 
 class ImageLogger(Callback):
-    def __init__(self, batch_frequency=2000, max_images=4, clamp=True, increase_log_steps=True,
-                 rescale=True, disabled=False, log_on_batch_idx=False, log_first_step=False,
-                 log_images_kwargs=None):
+    # def __init__(self, batch_frequency=2000, max_images=4, clamp=True, increase_log_steps=True,
+    #              rescale=True, disabled=False, log_on_batch_idx=False, log_first_step=False,
+    #              log_images_kwargs=None):
+    def __init__(self, save_path='', batch_frequency=2000, max_images=4, clamp=True, increase_log_steps=False,
+                rescale=True, disabled=False, log_on_batch_idx=False, log_first_step=False,
+                log_images_kwargs=None):
         super().__init__()
         self.rescale = rescale
         self.batch_freq = batch_frequency
@@ -23,10 +26,11 @@ class ImageLogger(Callback):
         self.log_on_batch_idx = log_on_batch_idx
         self.log_images_kwargs = log_images_kwargs if log_images_kwargs else {}
         self.log_first_step = log_first_step
+        self.save_path = save_path
 
     @rank_zero_only
     def log_local(self, save_dir, split, images, global_step, current_epoch, batch_idx):
-        root = os.path.join(save_dir, "image_log", split)
+        # root = os.path.join(save_dir, "image_log", split)
         for k in images:
             grid = torchvision.utils.make_grid(images[k], nrow=4)
             if self.rescale:
@@ -34,8 +38,10 @@ class ImageLogger(Callback):
             grid = grid.transpose(0, 1).transpose(1, 2).squeeze(-1)
             grid = grid.numpy()
             grid = (grid * 255).astype(np.uint8)
-            filename = "{}_gs-{:06}_e-{:06}_b-{:06}.png".format(k, global_step, current_epoch, batch_idx)
-            path = os.path.join(root, filename)
+            # filename = "{}_gs-{:06}_e-{:06}_b-{:06}.png".format(k, global_step, current_epoch, batch_idx)
+            filename = "GlobalStep_{:06}___Epoch_{:06}___BatchIdx_{:06}____{}.png".format(global_step, current_epoch, batch_idx, k)
+            # path = os.path.join(root, filename)
+            path = os.path.join(self.save_path, filename)
             os.makedirs(os.path.split(path)[0], exist_ok=True)
             Image.fromarray(grid).save(path)
 

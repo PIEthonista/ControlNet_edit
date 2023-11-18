@@ -1,5 +1,6 @@
 from share import *
 
+import os
 import argparse
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
@@ -42,7 +43,9 @@ if __name__ == "__main__":
     parser.add_argument('--max_steps', type=int, default=-1, help='Stop training after this number of steps. Disabled by default (-1)')
     
     # logger config
-    parser.add_argument('--img_logger_freq', type=int, default=300, help='')
+    parser.add_argument('--img_logger_dir', type=str, default='', help='dir for saving image logs')
+    parser.add_argument('--img_logger_freq', type=int, default=300, help='log every N steps')
+    parser.add_argument('--img_logger_max_img', type=int, default=4, help='max num of images to log every N steps')
     parser.add_argument('--save_ckpt_every_n_epoch', type=int, default=1, help='saves a model ckpt every n epochs')
     parser.add_argument('--save_ckpt_dir', type=str, default='', help='saves a model ckpt every n epochs to this dir')
     parser.add_argument('--save_ckpt_filename', type=str, default='', help='saves a model ckpt every n epochs with this name + "-epoch-step"')
@@ -53,6 +56,12 @@ if __name__ == "__main__":
     opt = parser.parse_args()
     
     print(f">>> TEXT PROMPT: {opt.input_text_prompt}")
+    
+    if opt.img_logger_dir == '':
+        # update img_log_dir
+        opt.img_logger_dir = os.path.join(opt.save_ckpt_dir, f"image_log__{opt.save_ckpt_filename}")
+        if not os.path.exists(opt.img_logger_dir):
+            os.makedirs(opt.img_logger_dir)
     
     # fix nargs='+' from list of str to list of int
     for i in range(len(opt.image_size)):
@@ -80,7 +89,9 @@ if __name__ == "__main__":
     train_dataloader = DataLoader(train_dataset, num_workers=opt.num_workers, batch_size=opt.batch_size, shuffle=True)
     val_dataloader = DataLoader(val_dataset, num_workers=opt.num_workers, batch_size=opt.val_batch_size, shuffle=False)
     
-    img_logger = ImageLogger(batch_frequency=opt.img_logger_freq)
+    img_logger = ImageLogger(save_path=opt.img_logger_dir,
+                             batch_frequency=opt.img_logger_freq,
+                             max_images=opt.img_logger_max_img)
     
     # Prevent overwrite old checkpoints: https://github.com/Lightning-AI/lightning/discussions/11087
     ckpt_saver = ModelCheckpoint(dirpath=opt.save_ckpt_dir,
@@ -90,7 +101,7 @@ if __name__ == "__main__":
                                  save_last=True,
                                  save_top_k=-1)
     
-    wandb_logger = WandbLogger(project=opt.wandb_project, name=opt.wandb_run_name)
+    # wandb_logger = WandbLogger(project=opt.wandb_project, name=opt.wandb_run_name)
     
     trainer = pl.Trainer(accumulate_grad_batches=opt.accumulate_grad_batches, 
                          benchmark=opt.cudnn_benchmark,
