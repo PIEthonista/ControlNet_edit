@@ -38,3 +38,5 @@ if __name__ == "__main__":
     print("DONE")
     
 # python custom_rgb2bnw.py --input_dir /media/nine/HD_1/HD_1_from_seven/data/LLVIP/visible/test --output_dir /media/nine/HD_1/HD_1_from_seven/data/LLVIP/visible_grayscale_3_channels_0_255/test
+# python custom_rgb2bnw.py --input_dir /work/u5832291/datasets/LLVIP/visible/train --output_dir /work/u5832291/datasets/LLVIP/visible_grayscale_3_channels_0_255/train
+# python custom_rgb2bnw.py --input_dir /work/u5832291/datasets/LLVIP/visible/test --output_dir /work/u5832291/datasets/LLVIP/visible_grayscale_3_channels_0_255/test
