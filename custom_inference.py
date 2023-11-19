@@ -87,6 +87,7 @@ if __name__ == '__main__':
     parser.add_argument('--ddim_steps', type=int, default=20, help='No. of diffusion steps. Min=1 Max=200')
     parser.add_argument('--guidance_scale', type=float, default=9.0, help='Guidance scale. Min=0.1 Max=30.0 step=0.1')
     parser.add_argument('--seed', type=int, default=-1, help='Seed for random noise. -1 for auto random. Min=-1 Max=2147483647')
+    parser.add_argument('--gpu', type=int, default=0, help='') # TODO: doesn't work
     opt = parser.parse_args()
     
     # hard coded configs
@@ -99,7 +100,7 @@ if __name__ == '__main__':
     # load model
     print("==> Loading Model")
     model = create_model(opt.cldm_model_config).cpu()
-    model.load_state_dict(load_state_dict(opt.model_ckpt, location='cuda'))
+    model.load_state_dict(load_state_dict(opt.model_ckpt, location=f"cuda:{opt.gpu}" if torch.cuda.is_available() else "cpu"))
     model = model.cuda()
     ddim_sampler = DDIMSampler(model)
     
