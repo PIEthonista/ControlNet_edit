@@ -48,3 +48,9 @@ for k in scratch_dict.keys():
 model.load_state_dict(target_dict, strict=True)
 torch.save(model.state_dict(), output_path)
 print('Done.')
+
+
+# python tool_add_control.py ./models/v1-5-pruned.ckpt ./models/control_sd15_ini.ckpt
+# python tool_add_control_sd21.py ./models/v2-1_512-ema-pruned.ckpt ./models/control_sd21_ini.ckpt
+
+# python tool_add_control.py ./models/v1-5-pruned-ZERO.ckpt ./models/control_sd15_ini_ZERO.ckpt
